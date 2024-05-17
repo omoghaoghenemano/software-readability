@@ -9,8 +9,19 @@ public class NumberLinesFeature extends FeatureMetric {
      * @return source code lines of the given code snippet.
      */
     @Override
-    public double computeMetric(String codeSnippet) {
-        throw new UnsupportedOperationException("Implement me");
+    public double computeMetric(String codeSnippet){
+        try{
+            int lineCount = 0;
+            String[] lines = codeSnippet.split("\\r?\\n");
+            //count the number of line count
+            lineCount = lines.length;
+
+            return lineCount;
+        }
+        catch(Exception e){
+            throw new RuntimeException(e);
+        }
+
     }
 
     @Override
