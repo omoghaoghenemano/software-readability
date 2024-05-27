@@ -2,12 +2,17 @@ package de.uni_passau.fim.se2.sa.readability.features;
 
 
 import com.github.javaparser.JavaParser;
+import com.github.javaparser.ParseException;
 import com.github.javaparser.ast.CompilationUnit;
+import com.github.javaparser.ast.body.BodyDeclaration;
 import com.github.javaparser.quality.NotNull;
 import de.uni_passau.fim.se2.sa.readability.utils.OperandVisitor;
 import de.uni_passau.fim.se2.sa.readability.utils.OperatorVisitor;
 
+
 import java.util.Map;
+import java.util.Set;
+import java.util.*;
 
 public class HalsteadVolumeFeature extends FeatureMetric {
 
@@ -18,37 +23,63 @@ public class HalsteadVolumeFeature extends FeatureMetric {
      */
     @Override
     public double computeMetric(String codeSnippet) {
-        OperandVisitor operandVisitor = new OperandVisitor();
-        OperatorVisitor operatorVisitor = new OperatorVisitor();
+        try {
+            // Parse the code snippet
+            BodyDeclaration<?> bodyDeclaration = parseJavaSnippet(codeSnippet);
 
-        JavaParser parser = new JavaParser();
-        CompilationUnit compilationUnit = parser.parse(codeSnippet).getResult().orElseThrow(() -> new IllegalArgumentException("Invalid code snippet"));
-        compilationUnit.accept(operandVisitor, null);
-        compilationUnit.accept(operatorVisitor, null);
+            // Visit the code to count operators and operands
+            OperatorVisitor operatorVisitor = new OperatorVisitor();
+            OperandVisitor operandVisitor = new OperandVisitor();
 
-        Map<String, Integer> operandsPerMethod = operandVisitor.getOperandsPerMethod();
-        Map<OperatorVisitor.OperatorType, Integer> operatorsPerMethod = operatorVisitor.getOperatorsPerMethod();
+            bodyDeclaration.accept(operatorVisitor, null);
+            bodyDeclaration.accept(operandVisitor, null);
 
-        int n1 = operatorsPerMethod.size();
-        int n2 = operandsPerMethod.size();
-        int N1 = operatorsPerMethod.values().stream().mapToInt(Integer::intValue).sum();
-        int N2 = operandsPerMethod.values().stream().mapToInt(Integer::intValue).sum();
+            // Retrieve operator counts
+            Map<OperatorVisitor.OperatorType, Integer> operatorCounts = operatorVisitor.getOperatorsPerMethod();
+            Set<OperatorVisitor.OperatorType> uniqueOperators = new HashSet<>(operatorCounts.keySet());
+            int totalOperators = operatorCounts.values().stream().mapToInt(Integer::intValue).sum();
 
-        int n = n1 + n2;
-        int N = N1 + N2;
+            // Retrieve operand counts
+            Map<String, Integer> operandCounts = operandVisitor.getOperandsPerMethod();
+            Set<String> uniqueOperands = new HashSet<>(operandCounts.keySet());
+            int totalOperands = operandCounts.values().stream().mapToInt(Integer::intValue).sum();
 
-        if (n == 0) {
-            throw new IllegalArgumentException("Code snippet does not contain valid operators or operands");
+            System.out.println("total operands" + totalOperands );
+
+            // Compute Halstead metrics
+            int N1 = totalOperators;
+            int N2 = totalOperands;
+            int n1 = uniqueOperators.size();
+            int n2 = uniqueOperands.size();
+            int N = N1 + N2;
+            int n = n1 + n2;
+
+
+
+         // Handle edge cases
+         if (n == 0) {
+            return 0.0;
         }
 
         // Calculate Halstead Volume
         double volume = N * (Math.log(n) / Math.log(2));
-        return volume;
-    }
 
+        // Handle negative or infinite volume values
+        if (Double.isNaN(volume) || volume < 0) {
+            return 0.0;
+        }
+
+        return volume;
+        } catch ( ParseException e) {
+            // Handle parse exceptions if needed
+            e.printStackTrace();
+            return 0.0;
+        }
+    }
 
     @Override
     public String getIdentifier() {
-        return "HalsteadVolume";
+        return "H_VOLUME";
     }
+
 }
