@@ -1,6 +1,19 @@
 package de.uni_passau.fim.se2.sa.readability.features;
 
+import java.io.IOException;
 import java.util.*;
+import com.github.javaparser.JavaParser;
+import com.github.javaparser.JavaToken;
+import com.github.javaparser.ParseException;
+import com.github.javaparser.ast.CompilationUnit;
+import com.github.javaparser.ast.Node;
+import com.github.javaparser.ast.body.BodyDeclaration;
+import com.github.javaparser.ParseProblemException;
+import com.github.javaparser.TokenRange;
+
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class TokenEntropyFeature extends FeatureMetric {
 
@@ -10,59 +23,45 @@ public class TokenEntropyFeature extends FeatureMetric {
      *
      * @return token entropy of the given code snippet.
      */
-    @Override
-    public double computeMetric(String codeSnippet) {
-        // Parse the code snippet into tokens
-        List<String> tokens = tokenizeCodeSnippet(codeSnippet);
+  
+  
 
-
-        // Count frequencies of each token
-        Map<String, Integer> tokenCounts = new HashMap<>();
-        for (String token : tokens) {
-            tokenCounts.put(token, tokenCounts.getOrDefault(token, 0) + 1);
-        }
-
-        // Calculate total number of tokens
-        int totalTokens = tokens.size();
-
-        // Calculate token probabilities and entropy
-        double entropy = 0.0;
-        for (String token : tokenCounts.keySet()) {
-            double tokenProbability = (double) tokenCounts.get(token) / totalTokens;
-            entropy -= tokenProbability * (Math.log(tokenProbability) / Math.log(2)); // Using log base 2
-        }
-
-        return entropy;
-    }
-
-    private List<String> tokenizeCodeSnippet(String codeSnippet) {
-        List<String> tokens = new ArrayList<>();
-        StringBuilder currentToken = new StringBuilder();
-
-        for (char c : codeSnippet.toCharArray()) {
-            if (Character.isWhitespace(c)) {
-                if (!currentToken.isEmpty()) {
-                    tokens.add(currentToken.toString());
-                    currentToken.setLength(0); // Clear StringBuilder
+        @Override
+        public double computeMetric(String codeSnippet) {
+            try {
+                // Parse the code snippet
+                BodyDeclaration<?> bodyDeclaration = parseJavaSnippet(codeSnippet);
+    
+                // Extract tokens and calculate the frequency of each token
+                Map<String, Integer> tokenFrequency = new HashMap<>();
+                int totalTokens = 0;
+    
+                if (bodyDeclaration.getTokenRange().isPresent()) {
+                    TokenRange tokenRange = bodyDeclaration.getTokenRange().get();
+                    for (JavaToken token : tokenRange) {
+                        String tokenText = token.getText();
+                        tokenFrequency.put(tokenText, tokenFrequency.getOrDefault(tokenText, 0) + 1);
+                        totalTokens++;
+                    }
                 }
-            } else {
-                currentToken.append(c);
+    
+                // Calculate the Shannon Entropy
+                double entropy = 0.0;
+                for (int count : tokenFrequency.values()) {
+                    double probability = (double) count / totalTokens;
+                    entropy -= probability * (Math.log(probability) / Math.log(2));
+                }
+    
+                return entropy;
+            } catch (  ParseException e) {
+                // Handle parse exceptions if needed
+                e.printStackTrace();
+                return 0.0;
             }
         }
-
-        // Add the last token if it exists
-        if (!currentToken.isEmpty()) {
-            tokens.add(currentToken.toString());
+    
+        @Override
+        public String getIdentifier() {
+            return "TOKEN_ENTROPY";
         }
-
-        return tokens;
     }
-
-
-    @Override
-    public String getIdentifier() {
-        return "TokenEntropy";
-    }
-}
-
-
