@@ -9,12 +9,21 @@ import de.uni_passau.fim.se2.sa.readability.features.TokenEntropyFeature;
 import picocli.CommandLine.*;
 import picocli.CommandLine.Model.CommandSpec;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.concurrent.Callable;
+import java.util.*;
 
 @Command(
         name = "preprocess",
@@ -91,6 +100,86 @@ public class SubcommandPreprocess implements Callable<Integer> {
         return 0;
     }
 
+    private String readFileSpinnet(File snippetFile) {
+        try {
+            return Files.asCharSource(snippetFile, Charsets.UTF_8).read();
+        } catch (IOException e) {
+            System.err.println("Error reading snippet file: " + e.getMessage());
+            return "";
+        }
+    }
+
+    private List<Double> computeFeatureValues(String codeSnippet, List<FeatureMetric> featureMetrics) {
+        List<Double> values = new ArrayList<>();
+        for (FeatureMetric metric : featureMetrics) {
+            double value = metric.computeMetric(codeSnippet);
+            values.add(value);
+        }
+        return values;
+    }
+
+    private Map<String, Double> loadTruthScores() {
+    Map<String, Double> truthMap = new TreeMap<>(new TruthMapComparator());
+
+    try (BufferedReader reader = Files.newReader(truth, StandardCharsets.UTF_8)) {
+        String line;
+        boolean isFirstLine = true;
+
+        while ((line = reader.readLine()) != null) {
+            if (isFirstLine) {
+                isFirstLine = false;
+                continue;
+            }
+
+            String[] parts = line.split(",");
+            String rater = parts[0].trim();
+
+            for (int i = 1; i < parts.length; i++) {
+                try {
+                    double score = Double.parseDouble(parts[i].trim());
+                    truthMap.put(rater + "-" + i, score);
+                } catch (NumberFormatException e) {
+                    System.err.println("Invalid score format: " + parts[i] + " in line: " + line);
+                }
+            }
+        }
+    } catch (IOException e) {
+        System.err.println("Error reading truth file: " + e.getMessage());
+    }
+
+    return truthMap;
+}
+
+private static class TruthMapComparator implements Comparator<String> {
+    @Override
+    public int compare(String o1, String o2) {
+        String[] parts1 = o1.split("-");
+        String[] parts2 = o2.split("-");
+        int raterComparison = parts1[0].compareTo(parts2[0]);
+        if (raterComparison != 0) {
+            return raterComparison;
+        }
+        Integer snippet1 = Integer.parseInt(parts1[1]);
+        Integer snippet2 = Integer.parseInt(parts2[1]);
+        return snippet1.compareTo(snippet2);
+    }
+}   
+
+
+   private String computeTruthValue( double meanScore, double TRUTH_THRESHOLD){
+    String value;
+    if(meanScore >= TRUTH_THRESHOLD){
+        value = "Y";
+    }
+    else{
+        value = "N";
+    }
+
+    return value;
+   }
+
+
+
     /**
      * Generates the csv header represented by [SnippetFile, feature1, feature2, ...]
      *
@@ -105,6 +194,7 @@ public class SubcommandPreprocess implements Callable<Integer> {
         csv.append(",Truth");
         csv.append(System.lineSeparator());
     }
+    
 
     /**
      * Traverses through each java snippet in the specified source directory and computes the specified list of feature metrics.
@@ -120,7 +210,60 @@ public class SubcommandPreprocess implements Callable<Integer> {
      * @param featureMetrics the list of specified features via the cli.
      */
     private void collectCSVBody(StringBuilder csv, List<FeatureMetric> featureMetrics) {
-        throw new UnsupportedOperationException("Implement me");
+        Map<String, Double> truthMap = loadTruthScores();
+
+        File[] snippetFiles = sourceDir.toFile().listFiles((dir, name) -> name.endsWith(".jsnp"));
+        
+        // Checks if snippetFiles is not null and sort the files
+        if (snippetFiles != null) {
+            Arrays.sort(snippetFiles, new Comparator<File>() {
+                @Override
+                public int compare(File f1, File f2) {
+                    String firstName = f1.getName();
+                    String secondName = f2.getName();
+        
+                    return Integer.compare(Integer.parseInt(firstName.substring(0, firstName.indexOf('.'))), Integer.parseInt(secondName.substring(0, secondName.indexOf('.'))));
+                }
+            });
+        
+            //initialize  decimal formating symbol
+             DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
+            DecimalFormat df = new DecimalFormat("#.00", symbols);
+            for (File snippetFile : snippetFiles) {
+                String getFileName = snippetFile.getName();
+                String codeSnippet = readFileSpinnet(snippetFile);
+                List<Double> featureValues = computeFeatureValues(codeSnippet, featureMetrics);
+                csv.append(getFileName);
+
+                for (Double value : featureValues) {
+        
+                    String valueFormatted = df.format(value);
+                    System.out.println(valueFormatted);
+        
+                    csv.append(",").append(valueFormatted);
+                }
+        
+                // get snippet identifier based on file 
+                String codeSnippetIdentifier= getFileName.replace(".jsnp", "");
+        
+                // Iterate over the truthMap to find the corresponding value for the codeIdentify
+                double meanScore = 0.0;
+                for (Map.Entry<String, Double> entry : truthMap.entrySet()) {
+                    if (entry.getKey().endsWith("-" + codeSnippetIdentifier)) {
+                        meanScore = entry.getValue();
+                        break;
+                    }
+                }
+               
+                String truthValue = computeTruthValue(meanScore, TRUTH_THRESHOLD);
+                csv.append(",").append(truthValue);
+                csv.append(System.lineSeparator());
+    
+            }
+        } else {
+            System.out.println("No snippet files found.");
+        }
+        
     }
 
     /**
