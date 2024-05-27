@@ -22,21 +22,27 @@ public class HalsteadVolumeFeature extends FeatureMetric {
             bodyDeclaration.accept(operatorVisitor, null);
             bodyDeclaration.accept(operandVisitor, null);
 
-            // Retrieve operator and operand counts per method
+            // Retrieve operator and operand counts
             Map<OperatorVisitor.OperatorType, Integer> operatorsPerMethod = operatorVisitor.getOperatorsPerMethod();
             Map<String, Integer> operandsPerMethod = operandVisitor.getOperandsPerMethod();
 
-            // Calculate total counts
-            int totalOperators = operatorsPerMethod.values().stream().mapToInt(Integer::intValue).sum();
-            int totalOperands = operandsPerMethod.values().stream().mapToInt(Integer::intValue).sum();
+            // Calculate the total counts
+            int N1 = operatorsPerMethod.values().stream().mapToInt(Integer::intValue).sum();
+            int N2 = operandsPerMethod.values().stream().mapToInt(Integer::intValue).sum();
 
-            // Calculate unique counts
-            int uniqueOperators = operatorsPerMethod.size();
-            int uniqueOperands = operandsPerMethod.size();
+            //print n1
+            System.out.println("operand:"+N1 + " " + "operator" + N2);
+
+
+            // Calculate the unique counts
+            int n1 = operatorsPerMethod.size();
+            int n2 = operandsPerMethod.size();
 
             // Calculate program length (N) and program vocabulary (n)
-            int N = totalOperators + totalOperands;
-            int n = uniqueOperators + uniqueOperands;
+            int N = N1 + N2;
+            int n = n1 + n2;
+
+     
 
             // Ensure n is not zero to avoid logarithmic issues
             if (n == 0) {
@@ -50,6 +56,7 @@ public class HalsteadVolumeFeature extends FeatureMetric {
         } catch (ParseProblemException | ParseException e) {
             // Handle parse exceptions if needed
             e.printStackTrace();
+            System.out.println("Error: " + e.getMessage());
             return 0.0;
         }
     }
@@ -58,4 +65,5 @@ public class HalsteadVolumeFeature extends FeatureMetric {
     public String getIdentifier() {
         return "H_VOLUME";
     }
+
 }

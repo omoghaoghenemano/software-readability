@@ -246,7 +246,7 @@ private static class TruthMapComparator implements Comparator<String> {
                 // get snippet identifier based on file 
                 String codeSnippetIdentifier= getFileName.replace(".jsnp", "");
         
-                // Iterate over the truthMap to find the corresponding value for the codeIdentify
+                
                 double meanScore = 0.0;
                 for (Map.Entry<String, Double> entry : truthMap.entrySet()) {
                     if (entry.getKey().endsWith("-" + codeSnippetIdentifier)) {
