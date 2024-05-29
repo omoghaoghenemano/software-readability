@@ -110,12 +110,12 @@ public class SubcommandPreprocess implements Callable<Integer> {
     }
 
     private List<Double> computeFeatureValues(String codeSnippet, List<FeatureMetric> featureMetrics) {
-        List<Double> values = new ArrayList<>();
-        for (FeatureMetric metric : featureMetrics) {
-            double value = metric.computeMetric(codeSnippet);
-            values.add(value);
-        }
-        return values;
+            double numberLines =  new NumberLinesFeature().computeMetric(codeSnippet);
+            double tokenEntropy =   new TokenEntropyFeature().computeMetric(codeSnippet);
+            double halsteadVolume = new HalsteadVolumeFeature().computeMetric(codeSnippet);
+        
+            return Arrays.asList(numberLines, tokenEntropy, halsteadVolume);
+        
     }
 
     private Map<String, Double> loadTruthScores() {
@@ -168,7 +168,7 @@ private static class TruthMapComparator implements Comparator<String> {
 
    private String computeTruthValue( double meanScore, double TRUTH_THRESHOLD){
     String value;
-    if(meanScore >= TRUTH_THRESHOLD){
+    if(meanScore > TRUTH_THRESHOLD){
         value = "Y";
     }
     else{
