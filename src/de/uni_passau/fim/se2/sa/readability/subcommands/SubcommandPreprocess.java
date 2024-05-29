@@ -104,7 +104,6 @@ public class SubcommandPreprocess implements Callable<Integer> {
         try {
             return Files.asCharSource(snippetFile, Charsets.UTF_8).read();
         } catch (IOException e) {
-            System.err.println("Error reading snippet file: " + e.getMessage());
             return "";
         }
     }
@@ -139,12 +138,12 @@ public class SubcommandPreprocess implements Callable<Integer> {
                     double score = Double.parseDouble(parts[i].trim());
                     truthMap.put(rater + "-" + i, score);
                 } catch (NumberFormatException e) {
-                    System.err.println("Invalid score format: " + parts[i] + " in line: " + line);
+                    System.err.println("Invalid  format");
                 }
             }
         }
     } catch (IOException e) {
-        System.err.println("Error reading truth file: " + e.getMessage());
+        System.err.println(e.getMessage());
     }
 
     return truthMap;
@@ -211,7 +210,7 @@ private static class TruthMapComparator implements Comparator<String> {
      */
     private void collectCSVBody(StringBuilder csv, List<FeatureMetric> featureMetrics) {
         Map<String, Double> truthMap = loadTruthScores();
-
+        double mean = 0.0;
         File[] snippetFiles = sourceDir.toFile().listFiles((dir, name) -> name.endsWith(".jsnp"));
         
         // Checks if snippetFiles is not null and sort the files
@@ -245,23 +244,21 @@ private static class TruthMapComparator implements Comparator<String> {
         
                 // get snippet identifier based on file 
                 String codeSnippetIdentifier= getFileName.replace(".jsnp", "");
-        
-                
-                double meanScore = 0.0;
+              
                 for (Map.Entry<String, Double> entry : truthMap.entrySet()) {
-                    if (entry.getKey().endsWith("-" + codeSnippetIdentifier)) {
-                        meanScore = entry.getValue();
+                    if (entry.getKey().startsWith("Mean") && entry.getKey().endsWith("-" + codeSnippetIdentifier)) {
+                        mean = entry.getValue();
                         break;
                     }
                 }
                
-                String truthValue = computeTruthValue(meanScore, TRUTH_THRESHOLD);
+                String truthValue = computeTruthValue(mean, TRUTH_THRESHOLD);
                 csv.append(",").append(truthValue);
                 csv.append(System.lineSeparator());
     
             }
         } else {
-            System.out.println("No snippet files found.");
+            System.out.println("Failed to find snippet");
         }
         
     }
