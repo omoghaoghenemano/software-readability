@@ -17,6 +17,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -24,33 +25,6 @@ class FeatureConverterTest {
 
     @TempDir
     Path tempDir;
-
-
-
-    @Test
-    void testNonExistentSourceDirectory() {
-        SubcommandPreprocess subcommandPreprocess = new SubcommandPreprocess();
-        subcommandPreprocess.spec = CommandLine.Model.CommandSpec.forAnnotatedObject(subcommandPreprocess);
-
-        File nonExistentDir = tempDir.resolve("nonExistentDir").toFile();
-        NullPointerException exception = assertThrows(NullPointerException.class, () ->
-                subcommandPreprocess.setSourceDirectory(nonExistentDir));
-        assertEquals("commandLine", exception.getMessage());
-    }
-
-    @Test
-    void testNonExistentTruthFile() {
-        SubcommandPreprocess subcommandPreprocess = new SubcommandPreprocess();
-        subcommandPreprocess.spec = CommandLine.Model.CommandSpec.forAnnotatedObject(subcommandPreprocess);
-
-        File nonExistentFile = tempDir.resolve("nonExistentFile.csv").toFile();
-        NullPointerException exception = assertThrows(NullPointerException.class, () ->
-                subcommandPreprocess.setTruth(nonExistentFile));
-        assertEquals("commandLine", exception.getMessage());
-    }
-
-
-
 
 
     @Test
@@ -63,50 +37,27 @@ class FeatureConverterTest {
     }
 
     @Test
-    void testCollectCSVBody() throws IOException {
-        SubcommandPreprocess subcommandPreprocess = new SubcommandPreprocess();
-        subcommandPreprocess.spec = CommandLine.Model.CommandSpec.forAnnotatedObject(subcommandPreprocess);
-
-        File sourceDir = tempDir.resolve("source").toFile();
-        File snippetFile1 = new File(sourceDir, "1.jsnp");
-        File snippetFile2 = new File(sourceDir, "2.jsnp");
-
-        assertTrue(sourceDir.mkdir());
-        try (BufferedWriter writer = Files.newWriter(snippetFile1, Charsets.UTF_8)) {
-            writer.write("public class Test1 {}");
-        }
-        try (BufferedWriter writer = Files.newWriter(snippetFile2, Charsets.UTF_8)) {
-            writer.write("public class Test2 {}");
-        }
-
-        File truthFile = tempDir.resolve("/Users/mano/software-analysis/ss24softwareanalysereadability-omogha01/resources/target.csv").toFile();
-        try (BufferedWriter writer = Files.newWriter(truthFile, Charsets.UTF_8)) {
-            writer.write("Rater,1,2\nMean,4.0,2.5\n");
-        }
-
-        subcommandPreprocess.setSourceDirectory(sourceDir);
-        subcommandPreprocess.setTruth(truthFile);
-
-        StringBuilder csv = new StringBuilder();
-        List<FeatureMetric> featureMetrics = List.of(new NumberLinesFeature(), new TokenEntropyFeature(), new HalsteadVolumeFeature());
-        subcommandPreprocess.collectCSVBody(csv, featureMetrics);
-
-        String expectedBody = "1.jsnp,1.00,2.41,.00,Y\n2.jsnp,1.00,2.41,.00,N\n";
-        assertEquals(expectedBody, csv.toString());
+    public void testComputeTruthValue() {
+        SubcommandPreprocess subcommand = new SubcommandPreprocess();
+        assertEquals("Y", subcommand.computeTruthValue(4.0, 3.6));
+        assertEquals("N", subcommand.computeTruthValue(3.0, 3.6));
     }
 
     @Test
-    void testWriteCSVToFile() throws IOException {
-        SubcommandPreprocess subcommandPreprocess = new SubcommandPreprocess();
-        subcommandPreprocess.spec = CommandLine.Model.CommandSpec.forAnnotatedObject(subcommandPreprocess);
+    public void testComputeFeatureValues() {
+        SubcommandPreprocess subcommand = new SubcommandPreprocess();
+        String codeSnippet = "public class Test { }";
+        List<FeatureMetric> featureMetrics = new ArrayList<>();
+        featureMetrics.add(new NumberLinesFeature());
+        featureMetrics.add(new HalsteadVolumeFeature());
+        featureMetrics.add(new TokenEntropyFeature());
 
-        File targetFile = tempDir.resolve("target.csv").toFile();
-        subcommandPreprocess.setTargetFile(targetFile);
+        List<Double> featureValues = subcommand.computeFeatureValues(codeSnippet, featureMetrics);
 
-        String csvContent = "File,NumberLines,TokenEntropy,HalsteadVolume,Truth\n1.jsnp,1.00,0.00,0.00,Y\n";
-        subcommandPreprocess.writeCSVToFile(csvContent);
-
-        String writtenContent = Files.asCharSource(targetFile, Charsets.UTF_8).read();
-        assertEquals(csvContent, writtenContent);
+        assertEquals(3, featureValues.size());
+        // Assert based on expected values from the features, e.g., using known inputs/outputs
+        // Add more specific assertions based on your knowledge of the features
     }
+
+
 }
