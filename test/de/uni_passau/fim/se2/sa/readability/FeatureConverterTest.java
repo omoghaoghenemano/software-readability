@@ -12,9 +12,7 @@ import org.junit.jupiter.api.io.TempDir;
 import picocli.CommandLine;
 import picocli.CommandLine.ParameterException;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.*;
@@ -124,6 +122,43 @@ class FeatureConverterTest {
         assertEquals(csvContent, writtenContent);
     }
 
+    @Test
+    public void testCompare_WhenDifferentRaters() {
+        SubcommandPreprocess.TruthMapComparator comparator = new SubcommandPreprocess.TruthMapComparator();
+        String string1 = "Rater1-1";
+        String string2 = "Rater2-1";
 
+        int result = comparator.compare(string1, string2);
+
+        assertEquals(-1, result); // Expecting string1 to be less than string2
+    }
+
+    @Test
+    public void testReadFileSpinnet() throws IOException {
+        // Prepare test data
+        String testData = "line 1\nline 2\nline 3";
+        File tempFile = createTempFile(testData);
+
+        // Create SubcommandPreprocess instance
+        SubcommandPreprocess subcommand = new SubcommandPreprocess();
+
+        // Call the method under test with the prepared file
+        String result = subcommand.readFileSpinnet(tempFile);
+
+        // Assert the result
+        String expected = "line 1\nline 2\nline 3";
+        assertEquals(expected, result);
+
+        // Clean up temp file
+        tempFile.delete();
+    }
+
+    private File createTempFile(String content) throws IOException {
+        File tempFile = File.createTempFile("temp", ".txt");
+        FileWriter writer = new FileWriter(tempFile);
+        writer.write(content);
+        writer.close();
+        return tempFile;
+    }
 
 }
