@@ -36,9 +36,9 @@ public class SubcommandPreprocess implements Callable<Integer> {
 
     private static final double TRUTH_THRESHOLD = 3.6;
 
-    private Path sourceDir;
-    private File truth;
-    private File targetFile;
+    public Path sourceDir;
+    public File truth;
+    public File targetFile;
 
     @Option(
             names = {"-s", "--source"},
