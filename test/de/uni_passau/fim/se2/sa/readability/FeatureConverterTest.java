@@ -19,6 +19,7 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.*;
 
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class FeatureConverterTest {
@@ -71,6 +72,42 @@ class FeatureConverterTest {
 
         assertEquals(Path.of("existing_directory"), subcommand.sourceDir);
     }
+
+
+    @Test
+    void testCollectCSVBody() throws IOException {
+        SubcommandPreprocess subcommand = new SubcommandPreprocess();
+        CommandLine commandLine = new CommandLine(subcommand);
+        subcommand.spec = commandLine.getCommandSpec();
+
+        File sourceDir = tempDir.resolve("source").toFile();
+        File snippetFile1 = new File(sourceDir, "1.jsnp");
+        File snippetFile2 = new File(sourceDir, "2.jsnp");
+
+        assertTrue(sourceDir.mkdir());
+        try (BufferedWriter writer = Files.newWriter(snippetFile1, Charsets.UTF_8)) {
+            writer.write("public class Test1 {}");
+        }
+        try (BufferedWriter writer = Files.newWriter(snippetFile2, Charsets.UTF_8)) {
+            writer.write("public class Test2 {}");
+        }
+
+        File truthFile = tempDir.resolve("truth.csv").toFile();
+        try (BufferedWriter writer = Files.newWriter(truthFile, Charsets.UTF_8)) {
+            writer.write("Rater,1,2\nMean,4.0,2.5\n");
+        }
+
+        subcommand.setSourceDirectory(sourceDir);
+        subcommand.setTruth(truthFile);
+
+        StringBuilder csv = new StringBuilder();
+        List<FeatureMetric> featureMetrics = List.of(new NumberLinesFeature(), new TokenEntropyFeature(), new HalsteadVolumeFeature());
+        subcommand.collectCSVBody(csv, featureMetrics);
+
+        String expectedBody = "1.jsnp,1.00,2.41,.00,Y\n2.jsnp,1.00,2.41,.00,N\n";
+        assertEquals(expectedBody, csv.toString());
+    }
+
 
 
 
