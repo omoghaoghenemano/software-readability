@@ -32,7 +32,7 @@ import java.util.*;
 public class SubcommandPreprocess implements Callable<Integer> {
 
     @Spec
-    CommandSpec spec;
+    public  CommandSpec spec;
 
     private static final double TRUTH_THRESHOLD = 3.6;
 
@@ -100,7 +100,7 @@ public class SubcommandPreprocess implements Callable<Integer> {
         return 0;
     }
 
-    private String readFileSpinnet(File snippetFile) {
+    public String readFileSpinnet(File snippetFile) {
         try {
             return Files.asCharSource(snippetFile, Charsets.UTF_8).read();
         } catch (IOException e) {
@@ -108,7 +108,7 @@ public class SubcommandPreprocess implements Callable<Integer> {
         }
     }
 
-    private List<Double> computeFeatureValues(String codeSnippet, List<FeatureMetric> featureMetrics) {
+    public List<Double> computeFeatureValues(String codeSnippet, List<FeatureMetric> featureMetrics) {
             double numberLines =  new NumberLinesFeature().computeMetric(codeSnippet);
             double tokenEntropy =   new TokenEntropyFeature().computeMetric(codeSnippet);
             double halsteadVolume = new HalsteadVolumeFeature().computeMetric(codeSnippet);
@@ -117,7 +117,7 @@ public class SubcommandPreprocess implements Callable<Integer> {
         
     }
 
-    private Map<String, Double> loadTruthScores() {
+    public Map<String, Double> loadTruthScores() {
     Map<String, Double> truthMap = new TreeMap<>(new TruthMapComparator());
 
     try (BufferedReader reader = Files.newReader(truth, StandardCharsets.UTF_8)) {
@@ -149,7 +149,7 @@ public class SubcommandPreprocess implements Callable<Integer> {
     return truthMap;
 }
 
-private static class TruthMapComparator implements Comparator<String> {
+public static class TruthMapComparator implements Comparator<String> {
     @Override
     public int compare(String o1, String o2) {
         String[] parts1 = o1.split("-");
@@ -165,7 +165,7 @@ private static class TruthMapComparator implements Comparator<String> {
 }   
 
 
-   private String computeTruthValue( double meanScore, double TRUTH_THRESHOLD){
+   public String computeTruthValue( double meanScore, double TRUTH_THRESHOLD){
     String value;
     if(meanScore > TRUTH_THRESHOLD){
         value = "Y";
@@ -185,7 +185,7 @@ private static class TruthMapComparator implements Comparator<String> {
      * @param csv            the builder for the csv.
      * @param featureMetrics the list of specified features via the cli.
      */
-    private static void generateCSVHeader(StringBuilder csv, List<FeatureMetric> featureMetrics) {
+    public static void generateCSVHeader(StringBuilder csv, List<FeatureMetric> featureMetrics) {
         csv.append("File");
         for (FeatureMetric featureMetric : featureMetrics) {
             csv.append(String.format(",%s", featureMetric.getIdentifier()));
@@ -193,7 +193,7 @@ private static class TruthMapComparator implements Comparator<String> {
         csv.append(",Truth");
         csv.append(System.lineSeparator());
     }
-    
+
 
     /**
      * Traverses through each java snippet in the specified source directory and computes the specified list of feature metrics.
@@ -208,7 +208,7 @@ private static class TruthMapComparator implements Comparator<String> {
      * @param csv            the builder for the csv.
      * @param featureMetrics the list of specified features via the cli.
      */
-    private void collectCSVBody(StringBuilder csv, List<FeatureMetric> featureMetrics) {
+    public void collectCSVBody(StringBuilder csv, List<FeatureMetric> featureMetrics) {
         Map<String, Double> truthMap = loadTruthScores();
         double mean = 0.0;
         File[] snippetFiles = sourceDir.toFile().listFiles((dir, name) -> name.endsWith(".jsnp"));
@@ -268,7 +268,7 @@ private static class TruthMapComparator implements Comparator<String> {
      *
      * @param csv the generated csv String
      */
-    private void writeCSVToFile(String csv) {
+    public void writeCSVToFile(String csv) {
         try (BufferedWriter writer = Files.newWriter(new File(targetFile.getAbsolutePath()), Charsets.UTF_8)) {
             writer.write(csv);
         } catch (IOException e) {
