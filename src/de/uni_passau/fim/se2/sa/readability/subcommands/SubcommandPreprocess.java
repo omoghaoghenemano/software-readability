@@ -226,7 +226,7 @@ public static class TruthMapComparator implements Comparator<String> {
             });
         
             //initialize  decimal formating symbol
-             DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
+            DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
             DecimalFormat df = new DecimalFormat("#.00", symbols);
             for (File snippetFile : snippetFiles) {
                 String getFileName = snippetFile.getName();
