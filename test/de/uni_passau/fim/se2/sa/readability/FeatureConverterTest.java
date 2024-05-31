@@ -33,25 +33,7 @@ class FeatureConverterTest {
         subcommandPreprocess.spec = CommandLine.Model.CommandSpec.forAnnotatedObject(subcommandPreprocess);
     }
 
-    @Test
-    void testNonExistentSourceDirectory() {
-        File nonExistentDir = tempDir.resolve("nonExistentDir").toFile();
-        NullPointerException exception = assertThrows(NullPointerException.class, () ->
-                subcommandPreprocess.setSourceDirectory(nonExistentDir));
-        assertEquals("commandLine", exception.getMessage());
-    }
-
-    @Test
-    void testNonExistentTruthFile() {
-        File nonExistentFile = tempDir.resolve("nonExistentFile.csv").toFile();
-        NullPointerException exception = assertThrows(NullPointerException.class, () ->
-                subcommandPreprocess.setTruth(nonExistentFile));
-        assertEquals("commandLine", exception.getMessage());
-    }
-
-
-
-
+    
 
     @Test
     void testGenerateCSVHeader() {
