@@ -59,5 +59,19 @@ class FeatureConverterTest {
         // Add more specific assertions based on your knowledge of the features
     }
 
+    @Test
+    public void testSetSourceDirectory_WhenDirectoryExists() {
+        SubcommandPreprocess subcommand = new SubcommandPreprocess();
+        CommandLine commandLine = new CommandLine(subcommand);
+        subcommand.spec = commandLine.getCommandSpec();
+        File sourceDir = new File("existing_directory");
+        sourceDir.mkdir();
+
+        subcommand.setSourceDirectory(sourceDir);
+
+        assertEquals(Path.of("existing_directory"), subcommand.sourceDir);
+    }
+
+
 
 }
