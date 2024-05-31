@@ -108,6 +108,21 @@ class FeatureConverterTest {
         assertEquals(expectedBody, csv.toString());
     }
 
+    @Test
+    void testWriteCSVToFile() throws IOException {
+        SubcommandPreprocess subcommand = new SubcommandPreprocess();
+        CommandLine commandLine = new CommandLine(subcommand);
+        subcommand.spec = commandLine.getCommandSpec();
+
+        File targetFile = tempDir.resolve("target.csv").toFile();
+        subcommand.setTargetFile(targetFile);
+
+        String csvContent = "File,NumberLines,TOKEN_ENTROPY,H_VOLUME,Truth\n1.jsnp,1.00,0.00,0.00,Y\n";
+        subcommand.writeCSVToFile(csvContent);
+
+        String writtenContent = Files.asCharSource(targetFile, Charsets.UTF_8).read();
+        assertEquals(csvContent, writtenContent);
+    }
 
 
 
