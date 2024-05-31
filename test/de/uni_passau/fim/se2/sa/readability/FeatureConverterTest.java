@@ -154,11 +154,58 @@ class FeatureConverterTest {
     }
 
     private File createTempFile(String content) throws IOException {
-        File tempFile = File.createTempFile("temp", ".txt");
+        File tempFile = File.createTempFile("temp", ".csv");
         FileWriter writer = new FileWriter(tempFile);
         writer.write(content);
         writer.close();
         return tempFile;
     }
 
+
+
+    @Test
+    public void testSetTargetFile_WithValidFile()  throws IOException {
+        // Prepare test data
+        String testData = "line 1\nline 2\nline 3";
+        File targetFile = createTempFile(testData);
+
+
+        // Create SubcommandPreprocess instance
+        SubcommandPreprocess subcommand = new SubcommandPreprocess();
+
+        // Call the method under test
+        try {
+            subcommand.setTargetFile(targetFile);
+
+            // Assert that targetFile is set correctly
+            assertEquals(targetFile, subcommand.targetFile);
+        } catch (Exception e) {
+            // If an exception occurs, fail the test
+            fail("Unexpected exception: " + e.getMessage());
+        }
+    }
+    @Test
+    public void testSetTruth_WithValidFile()  throws IOException {
+        // Prepare test data
+        String testData = "line 1\nline 2\nline 3";
+
+        File tempFile = createTempFile(testData);
+
+        // Create SubcommandPreprocess instance
+        SubcommandPreprocess subcommand = new SubcommandPreprocess();
+
+        // Call the method under test
+        try {
+            subcommand.setTruth(tempFile);
+
+            // Assert that truth is set correctly
+            assertEquals(tempFile, subcommand.truth);
+        } catch (Exception e) {
+            // If an exception occurs, fail the test
+            fail("Unexpected exception: " + e.getMessage());
+        }
+    }
+
+
 }
+
