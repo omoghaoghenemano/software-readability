@@ -46,5 +46,23 @@ class FeatureMetricTest {
         assertTrue(metric.computeMetric(codeSnippet) > 0, "Halstead volume should be greater than 0");
     }
 
+    @Test
+    public void testGetIdentifier() {
+        // Create an instance of TokenEntropyFeature
+        TokenEntropyFeature feature = new TokenEntropyFeature();
+        HalsteadVolumeFeature feature2 = new HalsteadVolumeFeature();
+        NumberLinesFeature feature3 = new NumberLinesFeature();
+
+        // Call the getIdentifier method
+        String identifier = feature.getIdentifier();
+        String identifier2 = feature2.getIdentifier();
+        String identifier3 = feature3.getIdentifier();
+
+        // Assert that the returned identifier matches the expected identifier
+        assertEquals("TOKEN_ENTROPY", identifier);
+        assertEquals("H_VOLUME", identifier2);
+        assertEquals("NumberLines", identifier3);
+    }
+
 
 }

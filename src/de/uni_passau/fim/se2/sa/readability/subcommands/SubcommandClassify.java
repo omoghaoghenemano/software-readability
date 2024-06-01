@@ -91,7 +91,7 @@ public class SubcommandClassify implements Callable<Integer> {
      *
      * @param eval hosts the classification results.
      */
-    private static void printResults(final Evaluation eval) {
+    public static void printResults(final Evaluation eval) {
         System.out.println(eval.toSummaryString());
         System.out.printf("%-20s%.2f%n", "Accuracy", eval.pctCorrect());
         System.out.printf("%-20s%.2f%n", "Area Under ROC", eval.areaUnderROC(0));

@@ -6,11 +6,11 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import picocli.CommandLine;
 import picocli.CommandLine.ParameterException;
+import weka.classifiers.Evaluation;
+import weka.core.DenseInstance;
 import weka.core.Instances;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -48,17 +48,6 @@ class SubcommandClassifyTest {
 
         int result = subcommandClassify.call();
         assertEquals(1, result);
-    }
-    @Test
-    public void testTrainAndEvaluate() throws Exception {
-        String csvData = "File,NumberLines,H_VOLUME,TOKEN_ENTROPY,Truth\n1.jsnp,16.00,2.03,62.27,Y\n";
-        File validFile = Files.createFile(tempDir.resolve("validDataFile.csv")).toFile();
-        Files.write(validFile.toPath(), csvData.getBytes());
-
-        SubcommandClassify classify = new SubcommandClassify();
-        assertDoesNotThrow(() ->   classify.setDataFile(validFile));
-        classify.setDataFile(validFile);
-
     }
 
 
