@@ -26,7 +26,7 @@ public abstract class FeatureMetric {
      * @return The parsed code snippet ready to accept JavaParser visitors.
      * @throws ParseException if the code snippet could not be parsed by the JavaParser library.
      */
-    protected BodyDeclaration<?> parseJavaSnippet(String codeSnippet) throws ParseException {
+    public BodyDeclaration<?> parseJavaSnippet(String codeSnippet) throws ParseException {
         ParseResult<BodyDeclaration<?>> parseResult = new JavaParser().parse(ParseStart.CLASS_BODY, new StringProvider(codeSnippet));
 
         if (!parseResult.isSuccessful() || parseResult.getResult().isEmpty()) {

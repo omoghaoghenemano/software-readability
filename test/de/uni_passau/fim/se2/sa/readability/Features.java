@@ -1,10 +1,14 @@
 package de.uni_passau.fim.se2.sa.readability;
 
+import com.github.javaparser.ast.body.BodyDeclaration;
 import de.uni_passau.fim.se2.sa.readability.features.FeatureMetric;
 import de.uni_passau.fim.se2.sa.readability.features.HalsteadVolumeFeature;
 import de.uni_passau.fim.se2.sa.readability.features.NumberLinesFeature;
 import de.uni_passau.fim.se2.sa.readability.features.TokenEntropyFeature;
 import org.junit.jupiter.api.Test;
+
+import java.text.ParseException;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class FeatureMetricTest {
@@ -45,6 +49,23 @@ class FeatureMetricTest {
 
         assertTrue(metric.computeMetric(codeSnippet) > 0, "Halstead volume should be greater than 0");
     }
+    @Test
+    public void testComputeMetric() {
+        FeatureMetric featureMetric = new DummyFeatureMetric();
+        String codeSnippet = "public int add(int a, int b) { return a + b; }";
+
+        // Assuming the computeMetric method returns the length of the code snippet for DummyFeatureMetric
+        assertEquals(codeSnippet.length(), featureMetric.computeMetric(codeSnippet));
+    }
+
+    @Test
+    public void testGetIdentifier() {
+        FeatureMetric featureMetric = new DummyFeatureMetric();
+        assertEquals("DummyFeatureMetric", featureMetric.getIdentifier());
+    }
+
+
+  
 
 
 }
