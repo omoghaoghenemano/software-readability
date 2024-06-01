@@ -53,5 +53,7 @@ public class OperatorVisitorTest {
         assertEquals(3, (int) operatorsCount.getOrDefault(OperatorVisitor.OperatorType.ASSIGNMENT, 0));
         assertEquals(2, (int) operatorsCount.getOrDefault(OperatorVisitor.OperatorType.BINARY, 0));
         assertEquals(0, (int) operatorsCount.getOrDefault(OperatorVisitor.OperatorType.CONDITIONAL, 0));
-          }
+        assertEquals(1, (int) operatorsCount.getOrDefault(OperatorVisitor.OperatorType.UNARY, 0));
+        assertEquals(1, (int) operatorsCount.getOrDefault(OperatorVisitor.OperatorType.TYPE_COMPARISON, 0));
+    }
 }
