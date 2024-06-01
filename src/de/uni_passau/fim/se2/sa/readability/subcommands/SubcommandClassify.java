@@ -60,7 +60,7 @@ public class SubcommandClassify implements Callable<Integer> {
      * @return the instances dataset ready to be classified.
      * @throws IOException if the CSV file specified via the CLI could not be loaded.
      */
-    private Instances loadDataset() throws IOException {
+    public Instances loadDataset() throws IOException {
         CSVLoader loader = new CSVLoader();
         loader.setSource(data);
         Instances dataset = loader.getDataSet();
@@ -76,7 +76,7 @@ public class SubcommandClassify implements Callable<Integer> {
      * @return the evaluation object hosting the evaluation results.
      * @throws Exception if the classifier could not be generated successfully.
      */
-    private static Evaluation trainAndEvaluate(Instances dataset) throws Exception {
+    public static Evaluation trainAndEvaluate(Instances dataset) throws Exception {
         Classifier classifier = new Logistic();
         classifier.buildClassifier(dataset);
 

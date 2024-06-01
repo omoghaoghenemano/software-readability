@@ -1,22 +1,24 @@
-package de.uni_passau.fim.se2.sa.readability;
+package de.uni_passau.fim.se2.sa.readability.subcommands;
 
 
-import de.uni_passau.fim.se2.sa.readability.subcommands.SubcommandClassify;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import picocli.CommandLine;
 import picocli.CommandLine.ParameterException;
+import weka.core.Instances;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class SubcommandClassifyTest {
-
+    @TempDir
+    Path tempDir;
     private SubcommandClassify subcommandClassify;
     private CommandLine commandLine;
 
@@ -46,6 +48,17 @@ class SubcommandClassifyTest {
 
         int result = subcommandClassify.call();
         assertEquals(1, result);
+    }
+    @Test
+    public void testTrainAndEvaluate() throws Exception {
+        String csvData = "File,NumberLines,H_VOLUME,TOKEN_ENTROPY,Truth\n1.jsnp,16.00,2.03,62.27,Y\n";
+        File validFile = Files.createFile(tempDir.resolve("validDataFile.csv")).toFile();
+        Files.write(validFile.toPath(), csvData.getBytes());
+
+        SubcommandClassify classify = new SubcommandClassify();
+        assertDoesNotThrow(() ->   classify.setDataFile(validFile));
+        classify.setDataFile(validFile);
+
     }
 
 
