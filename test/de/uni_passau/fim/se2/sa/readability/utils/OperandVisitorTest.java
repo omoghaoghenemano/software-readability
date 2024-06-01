@@ -1,13 +1,10 @@
-package de.uni_passau.fim.se2.sa.readability;
+package de.uni_passau.fim.se2.sa.readability.utils;
 
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ParseResult;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.visitor.VoidVisitor;
 
-import com.github.javaparser.ast.body.BodyDeclaration;
-import com.github.javaparser.ast.visitor.VoidVisitor;
-import de.uni_passau.fim.se2.sa.readability.utils.OperandVisitor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

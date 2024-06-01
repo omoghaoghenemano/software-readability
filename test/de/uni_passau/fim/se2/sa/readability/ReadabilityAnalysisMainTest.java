@@ -1,16 +1,11 @@
+package de.uni_passau.fim.se2.sa.readability;
 
-
-import de.uni_passau.fim.se2.sa.readability.ReadabilityAnalysisMain;
-import de.uni_passau.fim.se2.sa.readability.subcommands.SubcommandClassify;
-import de.uni_passau.fim.se2.sa.readability.subcommands.SubcommandPreprocess;
 import org.junit.jupiter.api.Test;
 import picocli.CommandLine;
-import picocli.CommandLine.ParseResult;
 
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
-import java.util.concurrent.Callable;
 
 import static org.junit.jupiter.api.Assertions.*;
 

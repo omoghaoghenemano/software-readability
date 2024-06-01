@@ -1,4 +1,4 @@
-package de.uni_passau.fim.se2.sa.readability;
+package de.uni_passau.fim.se2.sa.readability.subcommands;
 
 import de.uni_passau.fim.se2.sa.readability.features.FeatureMetric;
 import de.uni_passau.fim.se2.sa.readability.features.HalsteadVolumeFeature;
