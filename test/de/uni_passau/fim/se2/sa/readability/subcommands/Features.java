@@ -1,5 +1,7 @@
 package de.uni_passau.fim.se2.sa.readability.subcommands;
 
+import com.github.javaparser.ParseException;
+import com.github.javaparser.ast.body.BodyDeclaration;
 import de.uni_passau.fim.se2.sa.readability.features.FeatureMetric;
 import de.uni_passau.fim.se2.sa.readability.features.HalsteadVolumeFeature;
 import de.uni_passau.fim.se2.sa.readability.features.NumberLinesFeature;
@@ -62,6 +64,31 @@ class FeatureMetricTest {
         assertEquals("TOKEN_ENTROPY", identifier);
         assertEquals("H_VOLUME", identifier2);
         assertEquals("NumberLines", identifier3);
+        FeatureMetric featureMetric = new FeatureMetric() {
+            @Override
+            public double computeMetric(String codeSnippet) {
+                return 0;
+            }
+
+            @Override
+            public String getIdentifier() {
+                return "";
+            }
+        };
+
+
+            String validCodeSnippet = "int a = 5;";
+
+            try {
+                BodyDeclaration<?> result = featureMetric.parseJavaSnippet(validCodeSnippet);
+                assertNotNull(result, "The parsed result should not be null for valid code snippet.");
+            } catch (ParseException e) {
+                fail("ParseException should not be thrown for valid code snippet.");
+            }
+
+
+
+
     }
 
 

@@ -39,6 +39,7 @@ class FeatureConverterTest {
         assertEquals("N", subcommand.computeTruthValue(3.0, 3.6));
     }
 
+
     @Test
     public void testComputeFeatureValues() {
         SubcommandPreprocess subcommand = new SubcommandPreprocess();
